@@ -6,19 +6,19 @@ Created on Aug 10, 2017
 
 ################################## REVISIONS BOX ##################################
 '''
-    Person       | Date       | Reason                       | Successful?
-    PRAT         | 10/7       | Expand the correct contours  |  YYEEEESSSSS
-                 |            | parameters to sort through   |
-                 |            | the top 3 (by area) contours |  
-                 |            | and compare (allows for a    |
-                 |            | larger target to be in view  |
-                 |            | but not select it)           |
-                 |            |                              |
-                 |            |                              |
-                 |            |                              |
-                 |            |                              |
-                 |            |                              |
-                 |            |                              |
+  | Person       | Date       | Reason                       | Successful?    | Notes   
+  | PRAT         | 10/7       | Expand the correct contours  |  YYEEEESSSSS   | Ran into a few issues - Had to factor width into filtering
+  |              |            | parameters to sort through   |                | Contour does not have to be entirely in screen for it to 
+  |              |            | the top 3 (by area) contours |                | select, but it doesn't have to be the biggest thing in screen
+  |              |            | and compare (allows for a    |                |
+  |              |            | larger target to be in view  |                |
+  |              |            | but not select it)           |                |
+  |              |            |                              |                |
+  |              |            |                              |                |
+  |              |            |                              |                |
+  |              |            |                              |                |
+  |              |            |                              |                |
+  |              |            |                              |                |
 '''
 ###################################################################################
 # This example will open a multiple windows and display sequential frames that represent the various manipulations to the image
@@ -29,8 +29,11 @@ import numpy as np
 import time
 from tracemalloc import Frame
 
-cap = cv2.VideoCapture(0)   #Establishes "cap" as the source
-
+try:
+    cap = cv2.VideoCapture(0)   #Establishes "cap" as the source
+except:
+    cap = cv2.VideoCapture(2)
+    
 ##################     Get a frame from the camera and Collect information on frame size and center   #######################
 _,frame = cap.read()
 frameHeight = frame.shape[0] 
@@ -38,7 +41,7 @@ frameWidth = frame.shape[1]
 frameCenter_X = int(frameWidth/2)
 frameCenter_Y = int(frameHeight/2)
 
-t0 = time.time()    #define variables
+t0 = time.time()    #define variables 
 t1 = time.time()
 
 fpsCount = 1
@@ -100,13 +103,15 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
         
         #####################################################################END Find Second Largest Contour
         
-        goal_Ratio1to2 = float(hf)/hs
+        goal_HeightRatio1to2 = float(hf)/hs
+        goal_WidthRatio1to2 = float(wf)/ws
         
-        #set min and max ratios
-        ratioMax = 2
-        ratioMin = 1.5
-        
-        if len(contours) > 2: 
+        #set min and max ratios for height and width
+        ratioMaxH = 2.00
+        ratioMinH = 1.55
+        ratioMaxW = 2.00
+        ratioMinW = 0.95
+        if len(contours) > 2:
         
             ##################################################################### Find Third Largest Contour 
             thirdlargestcontour = sorteddata[2][1]  #Find the Third Largest
@@ -116,10 +121,12 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
             
             #######calculate  aspect ratio of contour
             #aspect_ratio1 = float(wg)/hg
-            goal_Ratio1to3 = float(hf)/ht
-            goal_Ratio2to3 = float(hs)/ht
+            goal_HeightRatio1to3 = float(hf)/ht
+            goal_HeightRatio2to3 = float(hs)/ht
+            goal_WidthRatio1to3 = float(wf)/wt
+            goal_WidthRatio2to3 = float(ws)/wt
             
-            if (ratioMin <= goal_Ratio1to3 <= ratioMax):
+            if (ratioMinH <= goal_HeightRatio1to3 <= ratioMaxH and ratioMinW <= goal_WidthRatio1to3 <= ratioMaxW):
                 #################  Calculate center of contour and draw cross hairs on center of target
                 centerOfTarget_X = int(xf+wf/2)
                 centerOfTarget_Y = int(yf+hf/2)
@@ -140,11 +147,11 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
                 ################################## End Write Distance to Target Point Coordinate
                 
                 #Print Aspect Ratio On Screen
-                goal_RatioPrint = str(round(goal_Ratio1to3,2))
+                goal_RatioPrint = str(round(goal_HeightRatio1to3,2))
                 cv2.putText(frame, goal_RatioPrint, (475,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
                 #End Print Aspect Ratio On Screen
                         
-            if (ratioMin <= goal_Ratio2to3 <= ratioMax):
+            if (ratioMinH <= goal_HeightRatio2to3 <= ratioMaxH and ratioMinW <= goal_WidthRatio2to3 <= ratioMaxW):
                 #################  Calculate center of contour and draw cross hairs on center of target
                 centerOfTarget_X = int(xs+ws/2)
                 centerOfTarget_Y = int(ys+hs/2)
@@ -165,12 +172,12 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
                 ################################## End Write Distance to Target Point Coordinate
                 
                 #Print Aspect Ratio On Screen
-                goal_RatioPrint = str(round(goal_Ratio2to3,2))
+                goal_RatioPrint = str(round(goal_HeightRatio2to3,2))
                 cv2.putText(frame, goal_RatioPrint, (475,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
                 #End Print Aspect Ratio On Screen
                      
         #only run if contour is within ratioValues 
-        if (ratioMin <= goal_Ratio1to2 <= ratioMax):
+        if (ratioMinH <= goal_HeightRatio1to2 <= ratioMaxH and ratioMinW <= goal_WidthRatio1to2 <= ratioMaxW):
                      
             #################  Calculate center of contour and draw cross hairs on center of target
             centerOfTarget_X = int(xf+wf/2)
@@ -192,7 +199,7 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
             ################################## End Write Distance to Target Point Coordinate
             
             #Print Aspect Ratio On Screen
-            goal_RatioPrint = str(round(goal_Ratio1to2,2))
+            goal_RatioPrint = str(round(goal_HeightRatio1to2,2))
             cv2.putText(frame, goal_RatioPrint, (475,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
             #End Print Aspect Ratio On Screen
         
@@ -219,8 +226,7 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
     #cv2.imshow('Mask Image',mask)
     #cv2.imshow('Result of Applied Blue Mask to original image',res)
     cv2.imshow('Camera-frame with contour',frame)
-  
-    
+         
     # exit while loop using escape key
     k = cv2.waitKey(1) & 0xFF
     if k == 27:
