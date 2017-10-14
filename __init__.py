@@ -221,10 +221,7 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
     ################################## Calculate ThetaX and ThetaY
     #ThetaX = 
     ################################## End Calculate ThetaX and ThetaY
-# show all images as video in while loop for troubleshooting only.
-    #cv2.imshow('HSV-frame',hsv)
-    #cv2.imshow('Mask Image',mask)
-    #cv2.imshow('Result of Applied Blue Mask to original image',res)
+
     cv2.imshow('Camera-frame with contour',frame)
          
     # exit while loop using escape key
@@ -234,23 +231,6 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
 
 cv2.destroyAllWindows()     # Best practice is to clean up all windows before exiting.
 
-
-
-
-
-#*******************************************************************************************************************************
-# below is essentially the same work that is done above in the loop, but on a single frame (static) using the last frame from the while loop above
-# i was just using this for learning...
-#*******************************************************************************************************************************
-#cv2.imshow('HSV-frame',hsv)
-#cv2.imshow('Camera-frame',frame)
-#cv2.imshow('Mask Image',mask)  # s how final image
-#cv2.imshow('Result of Applied Blue Mask to original image',res)
-#maskcopy = mask  #make a copy of mask
-#image, contours, hierarchy = cv2.findContours(maskcopy,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-#cv2.drawContours(frame, contours, -1, (255,0,0), 2)
-#res = cv2.resize(frame,(int(frameWidth/2),int(frameHeight/2)),interpolation = cv2.INTER_AREA)
 cv2.imshow('Final Frame with contours',frame)
 #cv2.imshow('resize of Frame with contours',res)
 k = cv2.waitKey(0) & 0xFF
