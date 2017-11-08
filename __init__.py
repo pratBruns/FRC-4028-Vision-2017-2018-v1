@@ -25,6 +25,7 @@ Created on Aug 10, 2017
 # it also can identify the blue blocks on a sheet of paper and draw boundaries around them. 
 
 import cv2
+import socketserver
 import numpy as np
 import time
 from tracemalloc import Frame
@@ -46,6 +47,36 @@ fpsCount = 1
 fpsSum = 0
 framesPerSec = str(0)
 
+Pick1 = False
+Pick2 = False
+
+class MyTCPHandler(socketserver.BaseRequestHandler):
+    """
+    The request handler class for our server.
+
+    It is instantiated once per connection to the server, and must
+    override the handle() method to implement communication to the
+    client.
+    """
+
+    def handle(self):
+        # self.request is the TCP socket connected to the client
+        self.data = self.request.recv(1024).strip()
+        print ("{} wrote:".format(self.client_address[0]))
+        print (self.data)
+        # just send back the same data, but upper-cased
+        self.request.sendall(self.data.upper())
+        
+if __name__ == "__main__":
+    HOST, PORT = "localhost", 6060
+
+    # Create the server, binding to localhost on port 9999
+    server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
+
+    # Activate the server; this will keep running until you
+    # interrupt the program with Ctrl-C
+    server.serve_forever()
+    
 while(1):       # This is a simple continuous loop that recursively grabs frames from the system default camera.
     #########################################################
     t0 = time.time()    # Get starting time of loop
@@ -78,8 +109,8 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
     frame1 = cv2.line(frame1, (frameCenter_X, frameCenter_Y-10), (frameCenter_X, frameCenter_Y+10), (225,0,0), 1) 
     
     if len(contours) > 1:  # Avoid processing null contours 
-        greenTape = max(contours, key=cv2.contourArea)  #find largest area contour aka green reflective tape
-        (xf,yf,wf,hf) = cv2.boundingRect(greenTape)     # get geometric information
+        Obj1 = max(contours, key=cv2.contourArea)  #find largest area contour aka green reflective tape
+        (xf,yf,wf,hf) = cv2.boundingRect(Obj1)     # get geometric information
        
         #######################################################Find The Second Largest Contour
         goal_ycrcb_mint = np.array([0, 90, 100],np.uint8)
@@ -109,8 +140,10 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
         #set min and max ratios for height and width
         ratioMaxH = 2.00
         ratioMinH = 1.55
+        ratioAvgH = 1.775
         ratioMaxW = 2.00
         ratioMinW = 0.95
+        ratioavgW = 1.475
         if len(contours) > 2:
         
             ##################################################################### Find Third Largest Contour 
@@ -150,6 +183,8 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
                 goal_RatioPrint = str(round(goal_HeightRatio1to3,2))
                 cv2.putText(frame1, goal_RatioPrint, (475,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
                 #End Print Aspect Ratio On Screen
+                
+                Pick1 = True
                         
             if (ratioMinH <= goal_HeightRatio2to3 <= ratioMaxH and ratioMinW <= goal_WidthRatio2to3 <= ratioMaxW):
                 #################  Calculate center of contour and draw cross hairs on center of target
@@ -175,6 +210,8 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
                 goal_RatioPrint = str(round(goal_HeightRatio2to3,2))
                 cv2.putText(frame1, goal_RatioPrint, (475,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
                 #End Print Aspect Ratio On Screen
+                     
+                Pick2 = True
                      
         #only run if contour is within ratioValues 
         if (ratioMinH <= goal_HeightRatio1to2 <= ratioMaxH and ratioMinW <= goal_WidthRatio1to2 <= ratioMaxW):
@@ -202,11 +239,12 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
             goal_RatioPrint = str(round(goal_HeightRatio1to2,2))
             cv2.putText(frame1, goal_RatioPrint, (475,350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
             #End Print Aspect Ratio On Screen
-        
+            
+            Pick1 = True
+            
     ###########################################
     t1 = time.time()    # Get ending time for FPS  loop 
     ###########################################
-    
     
     ##################################     manage FPS averaging 
     fpsSum = fpsSum + (t1-t0)
@@ -238,3 +276,36 @@ cv2.imshow('Camera Raw', frame2)
 k = cv2.waitKey(0) & 0xFF
 if k == 27:
     cv2.destroyAllWindows()     # clean up after ESC key. Best practice is to clean up all windows before exiting.
+    
+
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
