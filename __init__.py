@@ -31,7 +31,7 @@ import time
 from tracemalloc import Frame
 
 cap = cv2.VideoCapture(0)   #Establishes "cap" as the source
-cap2 = cv2.VideoCapture(3)
+#cap2 = cv2.VideoCapture(3)
     
 ##################     Get a frame1 from the camera and Collect information on frame1 size and center   #######################
 _,frame1 = cap.read()
@@ -50,7 +50,7 @@ framesPerSec = str(0)
 Pick1 = False
 Pick2 = False
 
-class MyTCPHandler(socketserver.BaseRequestHandler):
+'''class MyTCPHandler(socketserver.BaseRequestHandler):
     """
     The request handler class for our server.
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
-    server.serve_forever()
+    server.serve_forever()'''
     
 while(1):       # This is a simple continuous loop that recursively grabs frames from the system default camera.
     #########################################################
@@ -84,7 +84,7 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
     
     
     _, frame1 = cap.read()   # Read a BGR frame1 from the camera and store in "frame1"
-    _, frame2 = cap2.read()
+    #_, frame2 = cap2.read()
     hsv = cv2.cvtColor(frame1, cv2.COLOR_BGR2HSV)    # Convert BGR frame1 to HSV format so that you can more easily filter on a color
 
     # define range of blue color in HSV
@@ -101,7 +101,7 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
     maskcopy = mask  #make a copy of mask, some documents suggest that the contours function changes the image that is passed.
     image, contours, hierarchy = cv2.findContours(maskcopy,cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)     # Find the contours
     cv2.drawContours(frame1, contours, -1, (255,0,0), 2)
-    cv2.drawContours(frame2, contours, -1, (255,0,0), 2)
+    #cv2.drawContours(frame2, contours, -1, (255,0,0), 2)
     
     #Draw Cross Hairs At Center of Frame
     frame1 = cv2.circle(frame1, (frameCenter_X, frameCenter_Y), 10, (255,0,0), 1)  #  Draw a circle using center and radius of target
@@ -261,7 +261,7 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
     ################################## End Calculate ThetaX and ThetaY
 
     cv2.imshow('Camera-frame1 with contour',frame1)
-    cv2.imshow('Camera Raw', frame2)
+    #cv2.imshow('Camera Raw', frame2)
          
     # exit while loop using escape key
     k = cv2.waitKey(1) & 0xFF
@@ -271,7 +271,7 @@ while(1):       # This is a simple continuous loop that recursively grabs frames
 cv2.destroyAllWindows()     # Best practice is to clean up all windows before exiting.
 
 cv2.imshow('Final Frame with contours',frame1)
-cv2.imshow('Camera Raw', frame2)
+#cv2.imshow('Camera Raw', frame2)
 #cv2.imshow('resize of Frame with contours',res)
 k = cv2.waitKey(0) & 0xFF
 if k == 27:
